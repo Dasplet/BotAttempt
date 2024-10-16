@@ -1,9 +1,13 @@
 import os
 from dotenv import load_dotenv
+from nextcord import Intents
 from nextcord.ext import commands
 
 def main():
-    client = commands.Bot(command_prefix="?")
+    intents = Intents.default()
+    intents.message_content = True
+
+    client = commands.Bot(command_prefix="?", intents=intents)
 
     load_dotenv()
 
