@@ -122,7 +122,7 @@ class MyHelpCommand(commands.MinimalHelpCommand):
     async def cog_help_embed(self, cog: Optional[commands.Cog]) -> Embed:
         if cog is None:
             return await self._help_embed(
-                title=f"No category",
+                title="No category",
                 command_set=self.get_bot_mapping()[None]
             )
         emoji = getattr(cog, "COG_EMOJI", None)
