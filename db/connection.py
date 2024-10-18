@@ -64,17 +64,21 @@ class SQLiteConnector:
 
 
     def insert_series(self, series_name: str):
-        with self.pool.get_connection() as conn:
-            cursor = conn.cursor()
-            insert_query = '''
-                INSERT INTO series (name)
-                VALUES (?);
+        try:
+            with self.pool.get_connection() as conn:
+                cursor = conn.cursor()
+                insert_query = '''
+                    INSERT INTO series (name)
+                    VALUES (?);
                 '''
-            
-            cursor.execute(insert_query, (series_name,))
-            conn.commit()
+                cursor.execute(insert_query, (series_name,))
+                conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error inserting series: {e}")
+
 
     def insert_character(self, name: str, series_name: str):
+        try:
             with self.get_connection() as conn:  # Using the connection from the pool
                 cursor = conn.cursor()
                 insert_query = '''
@@ -83,57 +87,74 @@ class SQLiteConnector:
                 '''
                 cursor.execute(insert_query, (name, series_name))
                 conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error inserting charecter: {e}")
+
 
 
     def insert_question(self, question: str, character_name: str):
-        with self.get_connection() as conn:  # Using the connection from the pool
-            cursor = conn.cursor()
-            insert_query = '''
-                INSERT INTO questions (character_id, question)
-                VALUES ((SELECT id from characters WHERE name = ?), ?);
-            '''
-            cursor.execute(insert_query, (character_name, question))
-            conn.commit()
+        try:
+            with self.get_connection() as conn:  # Using the connection from the pool
+                cursor = conn.cursor()
+                insert_query = '''
+                    INSERT INTO questions (character_id, question)
+                    VALUES ((SELECT id from characters WHERE name = ?), ?);
+                '''
+                cursor.execute(insert_query, (character_name, question))
+                conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error inserting Question: {e}")
 
     def insert_answer(self, question_id: int, answer: str, valid: bool):
-        with self.get_connection() as conn:  # Using the connection from the pool
-            cursor = conn.cursor()
-            insert_query = '''
-                INSERT INTO answers (question_id, answer, valid)
-                VALUES (?, ?, ?);
-            '''
-            cursor.execute(insert_query, (question_id, answer, valid))
-            conn.commit()
+        try:
+            with self.get_connection() as conn:  # Using the connection from the pool
+                cursor = conn.cursor()
+                insert_query = '''
+                    INSERT INTO answers (question_id, answer, valid)
+                    VALUES (?, ?, ?);
+                '''
+                cursor.execute(insert_query, (question_id, answer, valid))
+                conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error inserting answer: {e}")
 
     def update_question(self, question_id: int, new_question: str):
-        with self.get_connection() as conn:  # Using the connection from the pool
-            cursor = conn.cursor()
-            update_query = '''
-                UPDATE questions 
-                SET question = ? 
-                WHERE id = ?;
-            '''
-            cursor.execute(update_query, (new_question, question_id))
-            conn.commit()
+        try:
+            with self.pool.get_connection() as conn:
+                cursor = conn.cursor()
+                update_query = '''
+                    UPDATE questions 
+                    SET question = ? 
+                    WHERE id = ?;
+                '''
+                cursor.execute(update_query, (new_question, question_id))
+                conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error updating question with id {question_id}: {e}")
 
     def update_answer(self, answer_id: int, new_answer: str, new_valid: bool):
-        with self.get_connection() as conn:  # Using the connection from the pool
-            cursor = conn.cursor()
-            update_query = '''
-                UPDATE answers 
-                SET answer = ?, valid = ? 
-                WHERE id = ?;
-            '''
-            cursor.execute(update_query, (new_answer, new_valid, answer_id))
-            conn.commit()
-
+        try:
+            with self.pool.get_connection() as conn:
+                cursor = conn.cursor()
+                update_query = '''
+                    UPDATE answers 
+                    SET answer = ?, valid = ? 
+                    WHERE id = ?;
+                '''
+                cursor.execute(update_query, (new_answer, new_valid, answer_id))
+                conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error updating answer with id {answer_id}: {e}")
 
     def delete_answer(self, answer_id: int):
-        with self.get_connection() as conn:  # Using the connection from the pool
-            cursor = conn.cursor()
-            delete_query = '''
-                DELETE FROM answers 
-                WHERE id = ?;
-            '''
-            cursor.execute(delete_query, (answer_id,))
-            conn.commit()
+        try:
+            with self.pool.get_connection() as conn:
+                cursor = conn.cursor()
+                delete_query = '''
+                    DELETE FROM answers 
+                    WHERE id = ?;
+                '''
+                cursor.execute(delete_query, (answer_id,))
+                conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error deleting answer with id {answer_id}: {e}")
